@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- D3/jquery/bootstrap -->
+    <script src="https://d3js.org/d3.v5.min.js"
+            integrity="sha384-M06Cb6r/Yrkprjr7ngOrJlzgekrkkdmGZDES/SUnkUpUol0/qjsaQWQfLzq0mcfg"
+            crossorigin="anonymous"></script>
+    <script src="https://d3js.org/d3-array.v2.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <!-- Common Functionalities Shared Among Pages -->
+    <script src="js/common.js"></script>
+    <script src="js/MetricChart.js"></script>
+
+    <title>Persistent Homology Makes Force-Directed Layouts Better</title>
+
+</head>
+<body>
+
+
+<script>insert_navbar("layout_figures.html");</script>
+
+    <div class="page">
+
+        <h1>Initial Layout Figures</h1>
+
+        <h3>Dataset</h3>
+        <select id="dataset_selector" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" style="width: 400px" onchange="load_dataset()"></select>
+
+        <div id="graphs" style="width: 1050px;  height: 700px; margin-top: 30px; margin-bottom: 20px;" ></div>
+        <div id="plots" style="width: 1810px;"></div>
+
+    </div>
+
+<script>
+
+    dataset.forEach( _ds => {
+        let ds = _ds.substring(5,_ds.length-5)
+        let opt = document.createElement("option")
+        opt.value = _ds
+        opt.innerText = ds
+        document.getElementById("dataset_selector").appendChild(opt)
+    })
+
+    function load_dataset(){
+        let _ds = document.getElementById("dataset_selector").value
+        let ds = _ds.substring(5,_ds.length-5)
+
+        let htmp = ""
+        htmp += '<h3>Coranking</h3>'
+        htmp += '<svg id="' + ds + '_lc" width=350 height=250 style="border:3px solid Tomato;"></svg>'
+        htmp += '<svg id="' + ds + '_tw" width=350 height=250></svg>'
+        htmp += '<svg id="' + ds + '_cn" width=350 height=250></svg>'
+
+        htmp += '<h3>Timing and Convergence</h3>'
+        htmp += '<svg id="' + ds + '_am" width=350 height=250></svg>'
+        htmp += '<svg id="' + ds + '_it" width=350 height=250></svg>'
+
+        htmp += '<h3>Layout Quality Metrics</h3>'
+        htmp += '<svg id="' + ds + '_ec" width=350 height=250></svg>'
+        htmp += '<svg id="' + ds + '_ca" width=350 height=250></svg>'
+        htmp += '<svg id="' + ds + '_ar" width=350 height=250></svg>'
+
+        document.getElementById("plots").innerHTML = htmp
+
+        let before = "", after = "", label = "", stats = ""
+
+        layouts.forEach( layout => {
+            before += '<img width=350 src="figures/init_layout_' + ds + '_' + layout + '_initial.png"/>'
+            after += '<img width=350 src="figures/init_layout_' + ds + '_' + layout + '_final.png"/>'
+            label += '<span style="width: 350px; text-align: center; float: left;">' + get_proper_name(layout) + '</span>'
+            stats += '<span style="width: 350px; text-align: center; font-size: 12px; float: left;" id="' + ds + '_' + layout + '"><b>Performance</b><br></span>'
+        })
+        document.getElementById("graphs").innerHTML = label + before + after + stats
+
+        let plot_ec = MetricChart(ds + '_ec',"Edge Crossings",[0,80],[0,1])
+        let plot_ca = MetricChart(ds + '_ca',"Crossing Angle",[0,80],[0,1])
+        let plot_ar = MetricChart(ds + '_ar',"Minimum Angular Resolution",[0,80],[0,1])
+        let plot_it = MetricChart(ds + '_it',"Iteration Time",[0,80],[0,150])
+        let plot_am = MetricChart(ds + '_am',"Average Motion",[0,80],[0,40])
+        let plot_tw = MetricChart(ds + '_tw',"Trustworthiness",[0,80],[0,1])
+        let plot_cn = MetricChart(ds + '_cn',"Continuity",[0,80],[0,1])
+        let plot_lc = MetricChart(ds + '_lc',"LCMC",[0,80],[0,1])
+
+        layouts.forEach( layout => {
+            d3.csv("figures/init_layout_" + ds + '_' + layout + '.csv').then(__data => {
+                let precomp = parseFloat(__data[0].fdl_init)
+                if( layout !== "random") precomp += parseFloat(__data[0].spanning_tree) + parseFloat(__data[0].layout_time)
+
+                let statHTML = '<b>Performance</b><br>'
+                statHTML += "Precomputation Time: " + precomp.toFixed(2) + " ms<br>"
+                stat_fields.forEach( s => {
+                    if( s === 'lcmc_q_local')
+                        statHTML += '<b>' + stat_names[s] + ": " + parseFloat(__data[299][s]).toFixed(3) + "</b><br>"
+                    else
+                        statHTML += stat_names[s] + ": " + parseFloat(__data[299][s]).toFixed(3) + "<br>"
+                })
+                document.getElementById( ds + '_' + layout ).innerHTML = statHTML
+
+                plot_ec.add_data(layout, __data.map( d => parseFloat(d.crossing) ) )
+                plot_ca.add_data(layout, __data.map( d => parseFloat(d.crossingAngle) ) )
+                plot_ar.add_data(layout, __data.map( d => parseFloat(d.angularResolutionMin) ) )
+                plot_am.add_data(layout, __data.map( d => parseFloat(d.avgMotion) ) )
+                plot_it.add_data(layout, __data.map( d => parseFloat(d.frameTime) ) )
+                plot_tw.add_data(layout, __data.map( d => parseFloat(d.trustworthy_q_local) ) )
+                plot_cn.add_data(layout, __data.map( d => parseFloat(d.continuity_q_local) ) )
+                plot_lc.add_data(layout, __data.map( d => parseFloat(d.lcmc_q_local) ) )
+            })
+        })
+
+    }
+
+    load_dataset()
+</script>
+
+</body>
+
+</html>

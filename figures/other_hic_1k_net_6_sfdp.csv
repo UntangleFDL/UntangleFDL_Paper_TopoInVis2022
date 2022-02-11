@@ -1,0 +1,2 @@
+experiment,frame,file,download,jaccard,spanning_tree,quality,fdl_init,frameTime,totalEnergy,avgMotion,maxMotion,trustworthy_k_idx,trustworthy_q_local,trustworthy_q_global,continuity_k_idx,continuity_q_local,continuity_q_global,lcmc_k_idx,lcmc_q_local,lcmc_q_global
+other_hic_1k_net_6_sfdp,1,data/sfdp/hic_1k_net_6.json,94864.20000004768,18.100000023841858,249.69999992847443,0.10000002384185791,13823,0,0,113.29114847025257,186.07073215312505,18,0.9927764193896425,0.9922352671996761,18,0.9839157346441223,0.9838373111978508,18,0.30404999482987616,0.40395220824897415

@@ -1,0 +1,23 @@
+.page {
+    padding: 20px
+}
+.label_text {
+    font-size: 10pt;
+    font-family: Arial,serif;
+    text-anchor: middle;
+    cursor: move;
+}
+.axis{
+    fill: #000;
+    text-anchor: end;
+}
+.y_axis {
+    transform: rotate(-90deg);
+}
+.x_axis { }
+.label_rect {
+    fill-opacity: .85;
+    fill: white;
+    stroke-width: 2;
+    cursor: move;
+}

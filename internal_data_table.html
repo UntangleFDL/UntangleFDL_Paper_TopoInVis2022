@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- D3/jquery/bootstrap -->
+    <script src="https://d3js.org/d3.v5.min.js"
+            integrity="sha384-M06Cb6r/Yrkprjr7ngOrJlzgekrkkdmGZDES/SUnkUpUol0/qjsaQWQfLzq0mcfg"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <!-- Common Functionalities Shared Among Pages -->
+    <script src="js/common.js"></script>
+
+    <title>Persistent Homology Makes Force-Directed Layouts Better</title>
+
+    </head>
+    <body>
+
+
+<script>insert_navbar("internal_data_table.html");</script>
+
+    <div class="page">
+
+        <h1>Data Table</h1>
+    <button onclick="downloadData()">Download</button>
+    <table id="data_table">
+      <tr id="tbl_header">
+      </tr>
+    </table>
+
+
+    </div>
+
+<script>
+
+
+    function rowToHTML(row, isHeader=false){
+        let html = ''
+        if(isHeader){
+            row.forEach( r => { html += '<th>' + r + '</th>' })
+        }
+        else{
+            row.forEach( r => { html += '<td>' + r + '</td>' })
+        }
+        return html
+    }
+
+    function rowToCSV(row){
+        return row.join(",")
+    }
+    let save_file = []
+
+    function downloadText(text, filename) {
+        var a = document.createElement('a');
+        a.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+        a.setAttribute('download', filename);
+        a.click()
+    }
+
+    function downloadData(){
+        let data_csv = ""
+        save_file.forEach( row => {
+            data_csv += rowToCSV(row) + "\n"
+        })
+        downloadText(data_csv,"stats.csv")
+    }
+
+    let row = []
+    row.push('Dataset')
+    row.push('Layout')
+    row.push('Precomputation Time')
+    row.push('Iteration Time')
+    row.push('Average Motion (convergence)')
+    stat_fields.forEach( s => {
+        row.push(stat_names[s])
+        row.push(stat_names[s] + ' (convergence)')
+    })
+    document.getElementById('tbl_header').innerHTML = rowToHTML(row,true)
+    save_file.push(row)
+
+    function populate_table(ds,animated=false){
+        layouts.forEach( (layout,idx) => {
+            let filename = "figures/init_layout_" + ds + '_' + layout + '.csv'
+            if( animated ) filename = "figures/animate_" + ds + '_' + layout + '.csv'
+            d3.csv(filename).then(__data => {
+
+                //console.log(__data)
+                let row = []
+
+                row.push(ds)
+                row.push(layout)
+
+                let precomp = parseFloat(__data[0].fdl_init)
+                if( layout !== "random") precomp += parseFloat(__data[0].spanning_tree) + parseFloat(__data[0].layout_time)
+
+                row.push(precomp.toFixed(2))
+                row.push(d3.mean( __data.map( d => parseFloat(d.frameTime) )).toFixed(2))
+
+                let avgMo = 0
+                __data.map( d => parseFloat(d.avgMotion) ).forEach( (d,i) => {
+                    if( d > 1 ) avgMo = __data[i].frame
+                })
+
+                row.push(avgMo)
+                stat_fields.forEach( s => {
+                    //console.log( s in __data[0])
+                    if( !(s in __data[0]) ) {
+                        row.push("--")
+                        row.push("--")
+                    }
+                    else {
+                        let curData = __data.map(d => parseFloat(d[s]))
+                        let conv = 1
+                        curData.forEach((d, i) => {
+                            if (Math.abs(d - curData[curData.length - 1]) > 0.01) conv = __data[i].frame
+                        })
+                        row.push(curData[curData.length - 1].toFixed(3))
+                        row.push(conv)
+                    }
+                })
+
+                save_file.push(row)
+                let tr = document.createElement('tr')
+                tr.innerHTML = rowToHTML(row)
+
+                document.getElementById('data_table').appendChild(tr)
+            })
+        })
+
+        let methods = ['neato','fdp','sfdp']
+        methods.forEach(m=> {
+            d3.csv("figures/other_" + ds + '_' + m + '.csv').then(__data => {
+
+                let row = []
+
+                row.push(ds)
+                row.push(m)
+                row.push("--")
+                row.push("--")
+                row.push("--")
+                stat_fields.forEach(s => {
+                        let curData = __data.map(d => parseFloat(d[s]))
+                        let conv = 1
+                        if( (curData[curData.length - 1]).toFixed(0) === 'NaN'){
+                            row.push("--")
+                            row.push("--")
+                        }
+                        else {
+                            row.push(curData[curData.length - 1].toFixed(3))
+                            row.push("--")
+                        }
+                })
+
+                save_file.push(row)
+                let tr = document.createElement('tr')
+                tr.innerHTML = rowToHTML(row)
+                document.getElementById('data_table').appendChild(tr)
+            })
+        })
+
+    }
+
+
+dataset.forEach( _ds => {
+    let ds = _ds.substring(5, _ds.length - 5)
+    populate_table(ds)
+})
+
+
+large_data.forEach( _ds =>{
+    let ds = _ds.substring(11,_ds.length-5)
+    populate_table(ds,true)
+})
+
+
+</script>
+
+</body>
+
+</html>

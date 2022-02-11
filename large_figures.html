@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- D3/jquery/bootstrap -->
+    <script src="https://d3js.org/d3.v5.min.js"
+            integrity="sha384-M06Cb6r/Yrkprjr7ngOrJlzgekrkkdmGZDES/SUnkUpUol0/qjsaQWQfLzq0mcfg"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <!-- Common Functionalities Shared Among Pages -->
+    <script src="js/common.js"></script>
+
+    <title>Persistent Homology Makes Force-Directed Layouts Better</title>
+
+    </head>
+    <body>
+
+
+<script>insert_navbar("large_figures.html");</script>
+
+    <div class="page">
+        <h1>Large Data Figures</h1>
+
+        <h3>Dataset</h3>
+        <select id="dataset_selector" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example" style="width: 400px" onchange="load_dataset()"></select>
+
+        <div id="dataset" style="width: 1950px; margin-top: 30px; margin-bottom: 20px;"></div>
+    </div>
+
+
+<script>
+
+    let use_stat_fields = ['trustworthy_q_local','continuity_q_local','lcmc_q_local']
+
+    large_data.forEach( _ds => {
+        let ds = _ds.substring(11,_ds.length-5)
+        let opt = document.createElement("option")
+        opt.value = _ds
+        opt.innerText = ds
+        document.getElementById("dataset_selector").appendChild(opt)
+    })
+
+    function load_dataset(){
+        let _ds = document.getElementById("dataset_selector").value
+        let ds = _ds.substring(11,_ds.length-5)
+
+        let before = "", after = "", label = "", stats = ""
+
+        layouts.forEach( layout => {
+            before += '<h4>' + get_proper_name(layout) + '</h4>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_initial.png"/>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_5.png"/>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_10.png"/>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_25.png"/>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_50.png"/>'
+            before += '<img width=300 src="figures/init_layout_' + ds + '_' + layout + '_final.png"/>'
+            before += "<br>"
+            before += '<span style="width: 300px; text-align: center; float: left;">Initial</span>'
+            before += '<span style="width: 300px; text-align: center; float: left;">5 Iterations</span>'
+            before += '<span style="width: 300px; text-align: center; float: left;">10 Iterations</span>'
+            before += '<span style="width: 300px; text-align: center; float: left;">25 Iterations</span>'
+            before += '<span style="width: 300px; text-align: center; float: left;">50 Iterations</span>'
+            before += '<span style="width: 300px; text-align: center; float: left;">Final</span>'
+            before += "<br>"
+            before += "<div id='stats_" + layout + "'></div>"
+        })
+
+        document.getElementById("dataset").innerHTML = before + after + stats
+
+        layouts.forEach( layout => {
+            d3.csv("figures/init_layout_" + ds + '_' + layout + '.csv').then(__data => {
+                let output = ''
+                __data.forEach( d => {
+                    output += '<span id="statsAfter" style="display: inline-block; width: 300px; text-align: center; font-size: 12px; padding-left: 0px">'
+                    output+= '<b>Performance</b><br>'
+                    use_stat_fields.forEach( s => {
+                        output += stat_names[s] + ": " + parseFloat(d[s]).toFixed(3) + "<br>"
+                    })
+                    output += '</span>'
+                })
+                document.getElementById('stats_'+layout).innerHTML = output
+            })
+        })
+
+    }
+
+    load_dataset()
+
+</script>
+
+</body>
+
+</html>

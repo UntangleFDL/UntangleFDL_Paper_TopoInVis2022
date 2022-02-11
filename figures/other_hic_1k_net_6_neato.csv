@@ -1,0 +1,2 @@
+experiment,frame,file,download,jaccard,spanning_tree,quality,fdl_init,frameTime,totalEnergy,avgMotion,maxMotion,trustworthy_k_idx,trustworthy_q_local,trustworthy_q_global,continuity_k_idx,continuity_q_local,continuity_q_global,lcmc_k_idx,lcmc_q_local,lcmc_q_global
+other_hic_1k_net_6_neato,1,data/neato/hic_1k_net_6.json,118917.80000007153,45.10000002384186,225.39999997615814,0.20000004768371582,14535.099999904633,0,0,338.24572845909694,549.1719909099517,18,0.9797273035841075,0.9762575246807226,18,0.9261213681242705,0.9236522025730304,18,0.18795389643962265,0.22854425605407638

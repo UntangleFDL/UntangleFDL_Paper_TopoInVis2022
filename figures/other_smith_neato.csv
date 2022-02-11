@@ -1,0 +1,2 @@
+experiment,frame,file,download,jaccard,spanning_tree,quality,fdl_init,frameTime,totalEnergy,avgMotion,maxMotion,trustworthy_k_idx,trustworthy_q_local,trustworthy_q_global,continuity_k_idx,continuity_q_local,continuity_q_global,lcmc_k_idx,lcmc_q_local,lcmc_q_global
+other_smith_neato,1,data/neato/smith.json,34258.5,2399.6999999284744,60.39999997615814,0.20000004768371582,3760.600000023842,0,0,354.8896795952477,632.4818074854011,18,0.8430894807734648,0.8326437420730444,18,0.870482346312652,0.8711554903111656,18,0.04580363093052781,0.07305097178337978

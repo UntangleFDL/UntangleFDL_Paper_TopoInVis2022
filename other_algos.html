@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/html">
+<head>
+
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+          integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- D3/jquery/bootstrap -->
+    <script src="https://d3js.org/d3.v5.min.js"
+            integrity="sha384-M06Cb6r/Yrkprjr7ngOrJlzgekrkkdmGZDES/SUnkUpUol0/qjsaQWQfLzq0mcfg"
+            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
+            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
+            crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+            crossorigin="anonymous"></script>
+
+    <!-- Common Functionalities Shared Among Pages -->
+    <script src="js/common.js"></script>
+
+    <title>Persistent Homology Makes Force-Directed Layouts Better</title>
+
+</head>
+<body>
+
+
+<script>insert_navbar("other_algos.html");</script>
+
+
+<div class="page">
+    <h1>Alternative Layout Algorithms</h1>
+
+    <h3>Dataset</h3>
+    <select id="dataset_selector" class="form-select form-select-lg mb-3" aria-label=".form-select-lg example"
+            style="width: 400px" onChange="load_dataset()"></select>
+
+    <div id="dataset" style="width: 1250px; height: 480px; margin-top: 30px; margin-bottom: 0px;"></div>
+    <div id="other_dataset" style="width: 1250px; margin-top: 0px; margin-bottom: 20px;"></div>
+</div>
+
+</body>
+
+<script>
+
+
+    let dsets = large_data.concat(dataset)
+    dsets.sort( (a,b) => {
+        let dsA = a.startsWith("large") ? a.substring(11, a.length - 5) : a.substring(5, a.length - 5)
+        let dsB = b.startsWith("large") ? b.substring(11, b.length - 5) : b.substring(5, b.length - 5)
+        return dsA.localeCompare(dsB)
+    })
+
+    dsets.forEach(_ds => {
+        let ds = _ds.startsWith("large") ? _ds.substring(11, _ds.length - 5) : _ds.substring(5, _ds.length - 5)
+        let opt = document.createElement("option")
+        opt.value = _ds
+        opt.innerText = ds
+        document.getElementById("dataset_selector").appendChild(opt)
+    })
+
+    let methods = ['neato','fdp','sfdp']
+
+    function load_dataset() {
+        let _ds = document.getElementById("dataset_selector").value
+        let large_dataset = _ds.startsWith("large")
+        let ds = large_dataset ? _ds.substring(11, _ds.length - 5) : _ds.substring(5, _ds.length - 5)
+
+        let use_stat_fields = stat_fields
+        if( large_dataset ) use_stat_fields = ['trustworthy_q_local', 'continuity_q_local', 'lcmc_q_local']
+
+        let before = "", label = "", statsDiv = ""
+        layouts.forEach( layout => {
+            before += '<img width=400 src="figures/init_layout_' + ds + '_' + layout + '_final.png"/>'
+            label += '<span style="width: 400px; text-align: center; float: left;">' + get_proper_name(layout) + '</span>'
+            statsDiv += '<span style="width: 400px; text-align: center; font-size: 12px; float: left;" id="' + ds + '_' + layout + '"></span>'
+        })
+
+        document.getElementById("dataset").innerHTML = label + "<br>" + before + "<div>" + statsDiv + "</div>"
+
+        layouts.forEach( layout => {
+            d3.csv("figures/init_layout_" + ds + '_' + layout + '.csv').then(__data => {
+                let statHTML = '<b>Performance</b><br>'
+                use_stat_fields.forEach(s => {
+                        statHTML += stat_names[s] + ": " + parseFloat(__data[__data.length-1][s]).toFixed(3) + "<br>"
+                })
+                document.getElementById(ds + '_' + layout).innerHTML = statHTML
+            })
+        })
+
+
+        before = "", label = "", statsDiv = ""
+        methods.forEach(m=>{
+            label += '<span style="width: 400px; text-align: center; float: left;">' + m + '</span>'
+            statsDiv += '<span id="stats'+m+'" style="display: inline-block; width: 400px; text-align: center; font-size: 12px; padding-left: 0px"></span>'
+            before += '<img width=400 src="figures/other_' + ds + '_'+m+'.png"/>'
+        })
+
+        document.getElementById("other_dataset").innerHTML = label + "<br>" + before + "<div>" + statsDiv + "</div>"
+
+        methods.forEach(m=> {
+            d3.csv("figures/other_" + ds + '_' + m + '.csv').then(__data => {
+                let output = '<b>Performance</b><br>'
+                use_stat_fields.forEach(s => {
+                    output += stat_names[s] + ": " + parseFloat(__data[0][s]).toFixed(3) + "<br>"
+                })
+                document.getElementById('stats'+m).innerHTML = output
+            })
+        })
+    }
+
+    load_dataset()
+
+
+
+</script>
+</html>

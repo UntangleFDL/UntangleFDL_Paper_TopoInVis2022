@@ -1,0 +1,2 @@
+experiment,frame,file,download,jaccard,spanning_tree,quality,fdl_init,frameTime,totalEnergy,avgMotion,maxMotion,trustworthy_k_idx,trustworthy_q_local,trustworthy_q_global,continuity_k_idx,continuity_q_local,continuity_q_global,lcmc_k_idx,lcmc_q_local,lcmc_q_global
+other_smith_fdp,1,data/fdp/smith.json,23420.5,2194.600000023842,60.10000002384186,0.10000002384185791,3828,0,0,779.378992447881,1291.0127302238348,18,0.8940726477096341,0.878509228363378,18,0.861866454559718,0.8592407488450718,18,0.048492337553103365,0.07399050485317114

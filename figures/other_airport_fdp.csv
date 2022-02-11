@@ -1,0 +1,2 @@
+experiment,frame,file,download,jaccard,spanning_tree,quality,fdl_init,frameTime,totalEnergy,avgMotion,maxMotion,trustworthy_k_idx,trustworthy_q_local,trustworthy_q_global,continuity_k_idx,continuity_q_local,continuity_q_global,lcmc_k_idx,lcmc_q_local,lcmc_q_global
+other_airport_fdp,1,data/fdp/airport.json,11304.399999976158,2.600000023841858,7.100000023841858,0.19999992847442627,1030.1000000238419,0,0,722.2860965751712,1216.5270948482816,18,0.9660323353688463,0.9549950325129396,18,0.9083183146216764,0.9005432249217087,18,0.21280075836914253,0.2584469640788451
