@@ -172,6 +172,10 @@ function next_experiment(){
         let newP = document.createElement('li')
             newP.innerHTML = "Operation Complete"
         document.getElementById('status_ul').prepend(newP)
+        graphDraw.stopSimulation()
+        d3.select("#graph").selectAll("*").remove();
+        if (ph0d){ ph0d.remove(); ph0d = null; }
+        if (ph1d){ ph1d.remove(); ph1d = null; }
     }
 }
 
@@ -458,19 +462,21 @@ dataset.forEach( d =>{
     experiments.push(force_h0_exp(d, 'random'))
 })
 
-dataset.forEach( d =>{
-    if( !(d in exp_loop) ) exp_loop[d] = [0]
-    if( exp_loop[d].length > 0 )
-        exp_loop[d].forEach( l => {
-            experiments.push(highlight_loop_exp(d, 'random', dataset_colors[d], l))
-        })
+
+
+
+
+
+Object.keys(exp_loop).forEach( d =>{
+    exp_loop[d].forEach( l => {
+        experiments.push(highlight_loop_exp(d, 'random', dataset_colors[d], l))
+    })
 })
 
-dataset.forEach( d =>{
-    if( exp_loop[d].length > 0 )
-        exp_loop[d].forEach( l => {
-            experiments.push(force_h1_exp(d, 'random', dataset_colors[d], l, l ,0.95))
-        })
+Object.keys(exp_loop).forEach( d =>{
+    exp_loop[d].forEach( l => {
+        experiments.push(force_h1_exp(d, 'random', dataset_colors[d], l, l ,0.95))
+    })
 })
 
 large_data.forEach( ds =>{

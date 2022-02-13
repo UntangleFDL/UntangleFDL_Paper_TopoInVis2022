@@ -192,7 +192,6 @@ let GraphDraw = function(graph){
         },
         restartSimulation : function(){
             simulation.alphaDecay(0.01).alpha(1).restart()
-            console.log(simulation.alphaDecay())
         },
         removeForce : function(name){
             simulation.force(name, null)

@@ -90,36 +90,16 @@ let dataset = ["data/aves-sparrow-social-2009.json", "data/balanced_tree__3_6__.
 let large_data  = ['large_data/airport.json', 'large_data/hic_1k_net_6.json', 'large_data/smith.json']
 
 
-let exp_loop = { 'data/aves-sparrow-social-2009.json': [],
-                 'data/balanced_tree__3_6__.json': [],
-                 "data/barabasi_albert_graph__50_40__.json": [],
-                 "data/barbell.json" : [],
-                 "data/bcsstk.json": [2,3,5],
-                 "data/bio-celegans.json" : [],
+let exp_loop = { "data/bcsstk.json": [2,3,5,6,7],
                  "data/bio-diseasome.json" : [21,22,23],
                  "data/bn-mouse-visual-cortex-2.json": [5,7,9,10,13],
-                 "data/chordal_cycle_graph__90__.json": [],
                  "data/circular_ladder_graph__100__.json": [0],
-                 "data/connected_caveman_graph__10_20__.json": -1,
-                 "data/davis_southern_women.json": -1,
-                 "data/dolphin-social.json": -1,
-                 "data/dorogovtsev_goltsev_mendes_graph__5__.json": -1,
-                 "data/duplication_divergence_graph__50_0_5__.json": -1,
-                 "data/engymes_g123.json": [91],
-                 "data/enron-email.json": [],
-                 "data/ladder.json": [],
-                 "data/les_miserables.json": [],
-                 "data/lobster.json": [],
-                 "data/lollipop_graph__10_50__.json": [],
-                 "data/map_of_science.json": [164],
-                 "data/movies.json": [],
-                 "data/random_geometric_graph__400_0_1__.json": [42,43,44,45],
-                 "data/retweet.json": [1,2,3],
-                 "data/science_collab_network.json": [4,5,6],
-                 "data/train_bombing.json": [],
-                 "data/usair97.json": [],
-                 "data/watts_strogatz_graph__100_5_0_05__.json": [1,3]}
-
+                 "data/engymes_g123.json": [91,98,104,109,110,117,127],
+                 "data/map_of_science.json": [106,164,245],
+                 "data/random_geometric_graph__400_0_1__.json": [33,34,42,45,46],
+                 "data/retweet.json": [1,2,3,4,5],
+                 "data/science_collab_network.json": [2,4,5,6],
+                 "data/watts_strogatz_graph__100_5_0_05__.json": [0,3,8,9,10,16]}
 
 ////////////////////////////////////////////////////////////////////////////////////
 //////
