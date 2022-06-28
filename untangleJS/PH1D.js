@@ -56,9 +56,11 @@ let PersistentHomology1D = function(svg_name, graph, st=null){
             d.isActive = false
             d3.select(this).select(".ph_bar_selected").attr("width", 0)
             active_loops.splice(active_loops.indexOf(d),1)
+            selected_loop = -1
         }
     }
 
+    let selected_loop = -1;
     let active_loops = []
     function active_link(l){
         let ret = false;
@@ -68,17 +70,51 @@ let PersistentHomology1D = function(svg_name, graph, st=null){
         return ret
     }
 
+    function deactivate_loop_force( ){
+        if( selected_loop >= 0){
+            let al = loops[selected_loop]
+            d3.select(bars.nodes()[selected_loop]).select(".ph_bar_selected").attr("width", 0 )
+            gd.removeForce(al.name)
+            al.isActive = false
+            selected_loop = -1
+            gd.restartSimulation()
+        }
+    }        
+
+    function activate_loop_force( idx, amnt ){
+        let d = loops[idx]
+              
+        if( selected_loop != idx ){
+            deactivate_loop_force()
+            gd.addForce(d.name, LoopForce(d.node_order()))
+            d.isActive = true
+            selected_loop = idx
+        }
+        //active_loops.push(d)
+        gd.getForce(d.name).strength( amnt )
+        gd.restartSimulation()
+        d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", x(amnt*maxW)-x(0) )
+    }
+
     function mouseclick( d ){
         console.log(loops.indexOf(d))
-        if( !d.isActive ) {
-            gd.addForce(d.name, LoopForce(d.node_order()))
-            active_loops.push(d)
-        }
+        console.log(d3.event.layerX)
+        console.log(d3.event.clientX)
+        console.log(d3.event.screenX)
+        console.log(x.invert(d3.event.offsetX)/maxW)
+        console.log(d)
+        activate_loop_force( loops.indexOf(d), x.invert(d3.event.offsetX)/maxW )
 
-        d.isActive = true
-        gd.getForce(d.name).strength( x.invert(d3.event.layerX)/maxW )
-        gd.restartSimulation()
-        d3.select(this).select(".ph_bar_selected").attr("width", d3.event.layerX-x(0) )
+        // if( !d.isActive ) {
+        //     gd.addForce(d.name, LoopForce(d.node_order()))
+        //     active_loops.push(d)
+        // }
+
+        // d.isActive = true
+        // gd.getForce(d.name).strength( x.invert(d3.event.layerX)/maxW )
+        // gd.restartSimulation()
+        // d3.select(this).select(".ph_bar_selected").attr("width", d3.event.layerX-x(0) )
+
     }
 
     function mouseover( d, idx ){
@@ -110,31 +146,61 @@ let PersistentHomology1D = function(svg_name, graph, st=null){
         set_graph_draw : function( _gd ){
             gd = _gd
         },
+        // activate_loop : function( idx, amnt ){
+        //     let d = loops[idx]
+                       
+        //     if( !d.isActive ) {
+        //         gd.addForce(d.name, LoopForce(d.node_order()))
+        //         active_loops.push(d)
+        //     }
+
+        //     d.isActive = true
+        //     gd.getForce(d.name).strength( amnt )
+        //     gd.restartSimulation()
+        //     d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", x(amnt*d.birth)-x(0) )
+        // },
+        // deactivate_loops : function( idx_list ){
+        //     idx_list.forEach( idx =>{
+        //         let d = loops[idx]
+        //         if( d.isActive ) {
+        //             gd.removeForce(d.name)
+        //             d.isActive = false
+        //             d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", 0)
+        //             active_loops.splice(active_loops.indexOf(d),1)
+        //         }
+        //         gd.restartSimulation()
+        //     })
+        // },
         activate_loop : function( idx, amnt ){
             let d = loops[idx]
+                  
+            if( selected_loop >= 0 && selected_loop != idx){
+                let al = loops[selected_loop]
+                gd.removeForce(al.name)
+                al.isActive = false
+                selected_loop = -1
+            }
 
             if( !d.isActive ) {
                 gd.addForce(d.name, LoopForce(d.node_order()))
-                active_loops.push(d)
+                //active_loops.push(d)
+                d.isActive = true
+                gd.getForce(d.name).strength( amnt )
+                gd.restartSimulation()
+                d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", x(amnt*d.birth)-x(0) )
+                selected_loop = idx
             }
 
-            d.isActive = true
-            gd.getForce(d.name).strength( amnt )
-            gd.restartSimulation()
-            d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", x(amnt*d.birth)-x(0) )
         },
-        deactivate_loops : function( idx_list ){
-            idx_list.forEach( idx =>{
-                let d = loops[idx]
-                if( d.isActive ) {
-                    gd.removeForce(d.name)
-                    d.isActive = false
-                    d3.select(bars.nodes()[idx]).select(".ph_bar_selected").attr("width", 0)
-                    active_loops.splice(active_loops.indexOf(d),1)
-                }
+        deactivate_loop : function( ){
+            if( selected_loop >= 0){
+                let al = loops[selected_loop]
+                gd.removeForce(al.name)
+                al.isActive = false
+                selected_loop = -1
                 gd.restartSimulation()
-            })
-        },
+            }
+        },        
         highlight_loop : function( idx ){ highlight_loop(idx) },
         unhighlight_loop : function( idx ){ unhighlight_loop(idx) },
         remove :function(){
